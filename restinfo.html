@@ -1,0 +1,375 @@
+﻿<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+<title>美食地图-Alpha 1.0</title>
+<link type="text/css" rel="stylesheet" href="css/font.css"/>
+<link type="text/css" rel="stylesheet" href="css/bootstrap.css"/>
+<link type="text/css" rel="stylesheet" href="css/bootmetro.css"/>
+<link type="text/css" rel="stylesheet" href="css/icomoon.css"/>
+<link type="text/css" rel="stylesheet" href="css/metro-ui-light.css"/>
+<link type="text/css" rel="stylesheet" href="css/bootmetro-tiles.css"/>
+<style>
+body {
+	padding-bottom: 0;
+}
+.win-backbutton::before {
+	content: "\0021";
+}
+#nav-bar {
+	position: fixed;
+	width: 100%;
+	min-width:770px;
+}
+.container-fluid {
+	padding-left: 0;
+	padding-right: 0;
+}
+#header-container {
+	margin-left: 60px;
+}
+#top-info {
+	padding-right:10px;
+}
+div.container-fluid {
+	margin-top:85px;
+}
+.metro {
+	overflow:inherit;
+}
+section.metro-section {
+	margin-right: 0 !important;
+}
+.carousel-control {
+	line-height: 45px;
+}
+ul.nav {
+	margin-bottom: 0;
+}
+#leftContent {
+	width: 50%;
+}
+#leftContent_inner, restinfoTabContent {
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+#restinfoTabContent {
+	padding-top: 10px;
+}
+#rightContent {
+	background: rgba(255, 255, 255, 0.4);
+	width: 50%;
+}
+#restCarousel {
+	margin-top: 10px;
+}
+.app-label {
+	left:0 !important;
+	top: 110px;
+	background:rgba(0,0,0,.5);
+	padding:0 10px 10px 10px;
+	width:450px;
+	height:140px;
+	transition:all .5s ease-in-out 100ms;
+	-webkit-transform:all .5s ease-in-out 100ms;
+	-moz-transform:all .5s ease-in-out 100ms;
+}
+section a:hover .app-label {
+	top:0;
+}
+.app-label h4 {
+	width:360px;
+	line-height:40px;
+	overflow:hidden;
+	white-space:nowrap;
+	text-overflow:ellipsis;
+}
+#leftContent h2 span {
+	position:absolute;
+	right: 25px;
+}
+#leftContent h2 span b {
+	font-size: 18px;
+	vertical-align: baseline;
+	width: 18px;
+	height: 18px;
+	line-height: 18px;
+}
+.app-label p {
+	height: 100px;
+	overflow:hidden;
+}
+.dishListIconTextItem {
+	display: inline-block;
+	position: relative;
+	vertical-align: middle;
+	width: 277px;
+	height: 70px;
+	padding: 5px;
+	border: 3px solid transparent;
+	overflow: hidden;
+	background-color: rgb(218, 103, 27);
+	color: white;
+	margin-bottom: 4px;
+}
+.dishListIconTextItem:hover {
+	border: solid 3px #b3b3b3;
+	color: white;
+	text-decoration: none;
+}
+a.dishListIconTextItem:active {
+	color: white;
+}
+.dishListIconTextItem-Image {
+	display: inline-block;
+	vertical-align: middle;
+	margin: 5px;
+	width: 60px;
+	height: 60px;
+}
+.dishListIconTextItem-Detail, .dishListIconTextItem-Image {
+	display: inline-block;
+	vertical-align: middle;
+	margin: 5px;
+}
+.perCommentContent {
+	display: inline-block;
+	width: 100%;
+}
+.perCommentContent img {
+	width: 60px;
+	height: 60px;
+}
+.perCommentContent img, .perCommentContent div, .perCommentContent p {
+	float: left;
+}
+.perCommentContent b {
+	float: right;
+	cursor: pointer;
+}
+.perCommentContent div {
+	padding-left: 10px;
+}
+.perCommentContent p:last-child {
+	clear: both;
+	display: inline-block;
+}
+.perCommentContent p:first-child {
+	font-size: 16px;
+	line-height: 24px;
+}
+b.icon-map-pin-fill {
+	font-size: 24px;
+	height: 24px;
+	line-height: 24px;
+	vertical-align: baseline;
+	color: red;
+	cursor: pointer;
+	width: 16px;
+}
+a[rel='popover'] {
+	margin-left: 10px;
+}
+.progress.progress-indeterminate .bar {
+	background: url(images/progress-indeterminate-light.gif) no-repeat scroll 0px 0px transparent;
+}
+.popover {
+	width: auto;
+}
+.popover-title {
+	display:none;
+}
+.modal-header h3 {
+	text-align: center;
+}
+</style>
+<script src="js/jquery-1.8.2.js"></script>
+<script src="js/bootstrap.js"></script>
+<script src="js/bootmetro.js"></script>
+<script src="js/jquery.mousewheel.js"></script>
+<script src="js/jquery.scrollTo.js"></script>
+<script src="http://api.map.baidu.com/api?v=1.4"></script>
+<script>
+$(document).ready(function(e) {
+	$("#restinfoTab a").click(function(e) {
+		e.preventDefault();
+		$(this).tab("show");
+	})
+	$("#leftContent_inner").height($(window).height() - 143);
+	$("#restinfoTabContent").height($(window).height() - 182);
+	if($(window).width() > 770) {
+		if(Math.floor($(window).width() / 2) - 50 <= $(".perCommentContent").width()) {
+			$(".perCommentContent div").width(Math.floor($(window).width() / 2) - 50 - 71);
+		} else {
+			$(".perCommentContent div").width(Math.floor($(window).width() / 2) - 50 - 71 - 20);
+		}
+	} else {
+		if(Math.floor($(window).width() / 2) - 50 <= $(".perCommentContent").width())
+			$(".perCommentContent div").width(268);
+		else
+			$(".perCommentContent div").width(268 - 20);
+	}
+	$(window).resize(function(e) {
+        $("#leftContent_inner").height($(window).height() - 143);
+		$("#restinfoTabContent").height($(window).height() - 182);
+		$(".perCommentContent div").width($(".perCommentContent").width() - 71);
+    });
+	$("a[rel='popover']").popover("toggle");
+	$("a[href='#comment']").click(function(e) {
+		alert("test");
+    });
+});
+</script>
+</head>
+
+<body>
+	<header id="nav-bar" class="container-fluid">
+    	<div class="row-fluid">
+        	<div class="span8">
+            	<div id="header-container">
+                	<a id="backbutton" class="win-backbutton" href="./index.html"></a>
+                    <h5>BootMenu</h5>
+                    <div class="dropdown">
+                    	<a class="header-dropdown dropdown-toggle accent-color" href="#" data-toggle="dropdown">开始
+                        	<b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                        	<li><a href="./index.html">Index</a></li>
+                            <li><a href="./index2.html">Index2</a></li>
+                            <li class="divider"></li>
+                            <li><a href="./index3.html">Index3</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="top-info" class="pull-right">
+            	<a class="pull-left" href="#login" data-toggle="modal">
+                	<div class="top-info-block">
+                    	<h3>游客</h3>
+                        <h4>登录</h4>
+                    </div>
+                    <div class="top-info-block">
+                    	<b class="icon-user"></b>
+                    </div>
+                </a>
+                <hr class="separator pull-left"/>
+                <a id="settings" class="pull-left" href="#">
+                	<b class="icon-settings"></b>
+                </a>
+            </div>
+        </div>
+    </header>
+    <div class="container-fluid">
+    	<div class="row-fluid">
+        	<div class="metro span12">
+            	<article class="metro-sections" style="min-width:770px; width:auto;">
+                	<section id="leftContent" class="metro-section">
+                    	<div style="margin: 0 25px 0 55px;">
+                        	<h2>中森名菜<a href="#" data-html="true" data-placement="bottom" rel="popover" data-content="<img width='280' height='150' src='http://api.map.baidu.com/staticimage?center=116.75312,23.368184&width=280&height=150&zoom=15&markers=116.75312,23.368184' class='img-polaroid' alt='loading...'/>"><b class="icon-map-pin-fill"></b></a><span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b></span></h2>
+                            <div id="leftContent_inner">
+                                <div id="restCarousel" class="carousel slide">
+                                    <div class="carousel-inner">
+                                        <div class="active item">
+                                            <img src="images/1.jpg" />
+                                        </div>
+                                        <div class="item">
+                                            <img src="images/2.jpg" />
+                                        </div>
+                                        <div class="item">
+                                            <img src="images/3.jpg" />                                    </div>
+                                    </div>
+                                    <a class="carousel-control left" href="#restCarousel" data-slide="prev">&#xe0f4;</a>
+                                    <a class="carousel-control right" href="#restCarousel" data-slide="next">&#xe0f1;</a>
+                                </div>
+                                <p>传说中“全广州最大的日本料理店”，“一出电梯就见小桥流水青竹横生”。环境“舒适”、“幽雅”，包房“很有日式风格”。食物的种类“很多”，其实除了日本料理之外，“粥、粉、面、饭”应有尽有，味道都“不错”。价格就印证了“丰俭由人”这个词，10多元到上千元的菜肴“任君选择”，既适合“平民消费”，又适合“商务宴请”。</p>
+                            </div>
+                        </div>
+                    </section>
+                    <section id="rightContent" class="metro-section">
+                    	<div style="margin: 25px 25px 0 25px;">
+                    		<ul class="nav nav-tabs" id="restinfoTab">
+                            	<li class="active"><a href="#dish" data-toggle="tab">菜单</a></li>
+                                <li><a href="#comment" data-toggle="tab">评论</a></li>
+                            </ul>
+                            <div id="restinfoTabContent" class="tab-content">
+                            	<div class="tab-pane fade in active" id="dish">
+                                	<a href="#" class="dishListIconTextItem">
+                                    	<img src="images/untitled.png" class="dishListIconTextItem-Image"/>
+                                        <div class="dishListIconTextItem-Detail">
+                                        	<h4>江户寿司组合</h4>
+                                            <h6><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b></h6>
+                                        </div>
+                                    </a>
+                                    <a href="#" class="dishListIconTextItem">
+                                    	<img src="images/untitled.png" class="dishListIconTextItem-Image"/>
+                                        <div class="dishListIconTextItem-Detail">
+                                        	<h4>江户寿司组合</h4>
+                                        </div>
+                                    </a>
+                                    <a href="#" class="dishListIconTextItem">
+                                    	<img src="images/untitled.png" class="dishListIconTextItem-Image"/>
+                                        <div class="dishListIconTextItem-Detail">
+                                        	<h4>江户寿司组合</h4>
+                                        </div>
+                                    </a>
+                                    <a href="#" class="dishListIconTextItem">
+                                    	<img src="images/untitled.png" class="dishListIconTextItem-Image"/>
+                                        <div class="dishListIconTextItem-Detail">
+                                        	<h4>江户寿司组合</h4>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="tab-pane fade" id="comment">
+                                	<div class="perCommentContent">
+                                    	<img src="images/untitled.png" />
+                                        <div>
+                                        	<p>新一</p>
+                                            <b class="icon-comments"></b>
+                                            <p>评论功能评论功能评论功能评论功能评论功能评论功能评论功能评论功能评论功能评论功能评论功能评论功能评论功能评论功能评论功能。(2分钟前)</p>
+                                        </div>
+                                    </div>
+                                    <div class="perCommentContent">
+                                    	<img src="images/untitled.png" />
+                                        <div>
+                                        	<p>新一</p>
+                                            <b class="icon-comments"></b>
+                                            <p>评论功能。(2分钟前)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </article>
+            </div>
+        </div>
+    </div>
+    <div id="login" class="modal message hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+			<h3>登录</h3>
+		</div>
+		<div class="modal-body">
+			<form id="loginForm" class="form-horizontal">
+            	<div class="control-group">
+                	<label class="control-label" for="inputEmail" style="width: 35%;">邮箱</label>
+                	<div class="controls" style="width: 65%; float: left; margin-left: 0;">
+                		<input type="text" id="inputEmail" placeholder="Email" style="margin-left: 20px;">
+                	</div>
+              	</div>
+                <div class="control-group">
+                	<label class="control-label" for="inputPassword" style="width: 35%;">密码</label>
+                    <div class="controls" style="width: 65%; float: left; margin-left: 0;">
+                    	<input type="password" id="inputPassword" placeholder="Password" style="margin-left: 20px;">
+                    </div>
+                </div>
+            </form>
+		</div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal">关闭</button>
+			<button type="submit" form="loginForm" class="btn">登录</button>
+		</div>
+	</div> 
+</body>
+</html>

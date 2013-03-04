@@ -1,0 +1,221 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+<title>美食地图-Alpha 1.0</title>
+<link type="text/css" rel="stylesheet" href="css/font.css"/>
+<link type="text/css" rel="stylesheet" href="css/bootstrap.css"/>
+<link type="text/css" rel="stylesheet" href="css/bootmetro.css"/>
+<link type="text/css" rel="stylesheet" href="css/icomoon.css"/>
+<link type="text/css" rel="stylesheet" href="css/metro-ui-light.css"/>
+<link type="text/css" rel="stylesheet" href="css/bootmetro-tiles.css"/>
+<style>
+.win-backbutton::before {
+	content: "\0021";
+}
+#nav-bar {
+	position: fixed;
+	width: 100%;
+	min-width:770px;
+}
+.container-fluid {
+	padding-left: 0;
+	padding-right: 0;
+}
+#header-container {
+	margin-left: 60px;
+}
+#top-info {
+	padding-right:10px;
+}
+div.container-fluid {
+	margin-top:85px;
+}
+.metro {
+	overflow:inherit;
+}
+section.metro-section {
+	margin-right: 55px !important;
+}
+#leftLayout {
+	width: 280px !important;
+}
+#mapContent {
+	width: 300px;
+	height:300px;
+}
+#map {
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	box-shadow:0px 1px 3px rgba(0, 0, 0, 0.1);
+}
+.more {
+	position:absolute;
+	top:10px;
+	right:10px;
+}
+.wide {
+	width:470px !important;
+}
+section a img {
+	display:block;
+	position:absolute;
+	bottom:0;
+	transition:all 0.5s ease-in-out 100ms;
+	-webkit-transition: all 0.5s ease-in-out 100ms;
+	-moz-transition:all 0.5s ease-in-out 100ms;
+}
+section a:hover img {
+	bottom:-100px;
+}
+.app-label {
+	left:0 !important;
+	top: 110px;
+	background:rgba(0,0,0,.5);
+	padding:0 10px 10px 10px;
+	width:450px;
+	height:140px;
+	transition:all .5s ease-in-out 100ms;
+	-webkit-transform:all .5s ease-in-out 100ms;
+	-moz-transform:all .5s ease-in-out 100ms;
+}
+section a:hover .app-label {
+	top:0;
+}
+.app-label h4 {
+	width:360px;
+	line-height:40px;
+	overflow:hidden;
+	white-space:nowrap;
+	text-overflow:ellipsis;
+}
+.app-label h4 span {
+	position:absolute;
+	right: 10px;
+}
+.app-label p {
+	height: 100px;
+	overflow:hidden;
+}
+.myLocal {
+	font-size:12px;
+	margin-left:10px;
+	line-height:20px;
+}
+.myLocal b[class='icon-map-pin-fill'] {
+	margin-left:5px;
+	color: red;
+}
+</style>
+<script src="js/jquery-1.8.2.js"></script>
+<script src="js/bootstrap.js"></script>
+<script src="js/jquery.mousewheel.js"></script>
+<script src="js/jquery.scrollTo.js"></script>
+<script src="http://api.map.baidu.com/api?v=1.4"></script>
+<script>
+$(document).ready(function(e) {
+	$("body").css("overflow","hidden");
+	if($(window).width() > 770)
+		$(".metro-sections").width($(window).width() - 55);
+	else
+		$(".metro-sections").width(715);
+	$(".metro-sections").height($(window).height() - 85 - 80);
+	$("#mapContent").width($(".metro-sections").width() - 390);
+	$("#mapContent").height($(".metro-sections").height());
+	$("#map").width($("#mapContent").width());
+	$("#map").height($("#mapContent").height() - 39);
+	init();
+	$(window).resize(function(e) {
+        $(".metro-sections").height($(window).height() - 85 - 80);
+		if($(window).width() < 770)
+			$(".metro-sections").width(715);
+		else
+			$(".metro-sections").width($(window).width() - 55);
+		$("#mapContent").width($(".metro-sections").width() - 390);
+		$("#mapContent").height($(".metro-sections").height());
+		$("#map").width($("#mapContent").width());
+		$("#map").height($("#mapContent").height() - 39);
+    }); 
+});
+var init = function() {
+	var ge = new BMap.Geolocation();
+	var map = new BMap.Map("map");
+	ge.getCurrentPosition(function(position) {
+		if(this.getStatus() == BMAP_STATUS_SUCCESS) {
+		//	alert("success");
+			var url = "http://api.map.baidu.com/staticimage?center=";
+			url += position.point.lng;
+			url += ",";
+			url += position.point.lat;
+			url += "&width=280&height=150&zoom=15&markers=";
+			url += position.point.lng;
+			url += ",";
+			url += position.point.lat;
+			$("#leftLayout").children("img").attr("src",url);
+			
+			map.centerAndZoom(position.point, 15);
+			map.enableScrollWheelZoom();
+			map.addControl(new BMap.GeolocationControl());
+			var opts = {type: BMAP_NAVIGATION_CONTROL_SMALL};
+			map.addControl(new BMap.NavigationControl(opts));
+		}
+	});
+}
+</script>
+</head>
+
+<body>
+	<header id="nav-bar" class="container-fluid">
+    	<div class="row-fluid">
+        	<div class="span8">
+            	<div id="header-container">
+                	<a id="backbutton" class="win-backbutton" href="./index.html"></a>
+                    <h5>BootMenu</h5>
+                    <div class="dropdown">
+                    	<a class="header-dropdown dropdown-toggle accent-color" href="#" data-toggle="dropdown">开始
+                        	<b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                        	<li><a href="./index.html">Index</a></li>
+                            <li><a href="./index2.html">Index2</a></li>
+                            <li class="divider"></li>
+                            <li><a href="./index3.html">Index3</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="top-info" class="pull-right">
+            	<a class="pull-left" href="#">
+                	<div class="top-info-block">
+                    	<h3>游客</h3>
+                        <h4>登录</h4>
+                    </div>
+                    <div class="top-info-block">
+                    	<b class="icon-user"></b>
+                    </div>
+                </a>
+                <hr class="separator pull-left"/>
+                <a id="settings" class="pull-left" href="#">
+                	<b class="icon-settings"></b>
+                </a>
+            </div>
+        </div>
+    </header>
+    <div class="container-fluid">
+    	<div class="row-fluid">
+        	<div class="metro span12">
+            	<article class="metro-sections" style="left:55px;">
+                	<section id="leftLayout" class="metro-section tile-span-4">
+                    	<h2>我的位置</h2>
+                        <img width="280" height="150" src="" class="img-polaroid" alt="loading..."/>
+                    </section>
+                    <section id="mapContent" class="metro-section">
+                    	<h2>附近的餐馆</h2>
+                        <div id="map"/>
+                    </section>
+                </article>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

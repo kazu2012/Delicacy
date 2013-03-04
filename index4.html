@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>美食地图</title>
+<!--[if lt IE 9]>
+<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.3"></script>
+<style type="text/css">
+html{
+	height: 100%;
+}
+body {
+	height:100%;
+	margin:0;
+	padding:0;
+}
+</style>
+<script type="text/javascript">
+function initialize() {
+	var geolocation = new BMap.Geolocation();
+	
+			
+			var mp = new BMap.Map('map');
+			var curr = new BMap.Point(113.497698, 23.456587);
+			var point = new BMap.Point(113.497698, 23.456587);
+			mp.centerAndZoom(curr, 15);
+			
+			geolocation.getCurrentPosition(function(r){
+		if(this.getStatus() == BMAP_STATUS_SUCCESS) {
+			var mk = new BMap.Marker(r.point);
+			mp.addOverlay(mk);
+			mp.panTo(r.point);
+		}
+	})
+			
+			var opts = {offset: new BMap.Size(150, 5)};
+			var optsn = {type: BMAP_NAVIGATION_CONTROL_SMALL};
+			mp.addControl(new BMap.NavigationControl(optsn));
+			mp.addControl(new BMap.ScaleControl(opts));
+			mp.addControl(new BMap.OverviewMapControl());
+		//	mp.addControl(new BMap.MapTypeControl());
+		//	mp.setCurrentCity("广州");
+			var myZoomCtrl = new ZoomControl();
+			mp.addControl(myZoomCtrl);
+			
+			mp.enableScrollWheelZoom();
+			
+			var marker = new BMap.Marker(point);
+			mp.addOverlay(marker);
+			marker.addEventListener("click", function() {
+				alert("You click the marker");
+			});
+			var optss = {
+				width: 250,
+				height: 100,
+				title: "Hello"
+			}
+		//	var infoWindow = new BMap.InfoWindow("World", optss);
+		//	mp.openInfoWindow(infoWindow, mp.getCenter());
+			
+			var traffic = new BMap.TrafficLayer();
+			mp.addTileLayer(traffic);
+			
+			var myPushpin = new BMap.PushpinTool(mp);
+			myPushpin.addEventListener("markend", function(e) {
+				alert("您标注的位置:" + e.marker.getPoint().lng + ", " + e.marker.getPoint().lat);
+			});
+			myPushpin.open();
+}
+function ZoomControl() {
+	this.defaultAnchor = BMAP_ANCHOR_TOP_RIGHT;
+	this.defaultOffset = new BMap.Size(10, 10);
+}
+ZoomControl.prototype = new BMap.Control();
+ZoomControl.prototype.initialize = function(map) {
+	var div = document.createElement("div");
+	div.appendChild(document.createTextNode("放大2级"));
+	div.style.cursor = "pointer";
+	div.style.border = "1px solid gray";
+	div.style.backgroundColor = "white";
+	div.onclick = function(e) {
+		map.zoomTo(map.getZoom() + 2);
+	}
+	map.getContainer().appendChild(div);
+	return div;
+}
+window.onload = initialize;
+</script>
+</head>
+
+<body>
+<div id="map" style="width:500px; height:320px;"></div>
+</body>
+</html>

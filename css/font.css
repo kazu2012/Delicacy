@@ -1,0 +1,36 @@
+@charset "utf-8";
+/* CSS Document */
+@font-face {
+	font-family:'Terminal Dosis';
+	font-style:normal;
+	font-weight:400;
+	src:url(../fonts/Terminal%20Dosis.eot);
+	src:local('Dosis Regular'), local('Dosis-Regular'), url(../fonts/Terminal%20Dosis.woff) format('woff');
+}
+
+@font-face {
+	font-family:'Open Sans';
+	font-style:normal;
+	font-weight:700;
+	src:local('Open Sans Bold'), local('OpenSans-Bold'), url(../fonts/opensans-bold-webfont.woff) format('woff');
+}
+
+@font-face {
+	font-family:'Open Sans';
+	font-style:normal;
+	font-weight:300;
+	src:local('Open Sans Light'), local('OpenSans-Light'), url(../fonts/opensans-light-webfont.woff) format('woff');
+}
+
+@font-face {
+	font-family:'Open Sans';
+	font-style:normal;
+	font-weight:600;
+	src:local('Open Sans Semibold'), local('OpenSans-Semibold'), url(../fonts/opensans-semibold-webfont.woff) format('woff');
+}
+
+@font-face {
+	font-family:'Open Sans';
+	font-weight:400;
+	font-style:normal;
+	src:local('Open Sans'), local('OpenSans'), url(../fonts/opensans-regular-webfont.woff) format('woff');

@@ -1,0 +1,416 @@
+﻿<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+<title>美食地图-Alpha 1.0</title>
+<link type="text/css" rel="stylesheet" href="css/font.css"/>
+<link type="text/css" rel="stylesheet" href="css/bootstrap.css"/>
+<link type="text/css" rel="stylesheet" href="css/bootmetro.css"/>
+<link type="text/css" rel="stylesheet" href="css/icomoon.css"/>
+<link type="text/css" rel="stylesheet" href="css/metro-ui-light.css"/>
+<link type="text/css" rel="stylesheet" href="css/bootmetro-tiles.css"/>
+<style>
+.win-backbutton::before {
+	content: "\0021";
+}
+#nav-bar {
+	position: fixed;
+	width: 100%;
+	min-width:770px;
+}
+.container-fluid {
+	padding-left: 0;
+	padding-right: 0;
+}
+#header-container {
+	margin-left: 60px;
+}
+#top-info {
+	padding-right:10px;
+}
+div.container-fluid {
+	margin-top:85px;
+}
+.metro {
+	overflow:inherit;
+}
+section.metro-section {
+	margin-right: 55px !important;
+	width: 480px !important;
+}
+.more {
+	position:absolute;
+	top:10px;
+	right:10px;
+}
+.wide {
+	width:470px !important;
+}
+section a img {
+	display:block;
+	position:absolute;
+	bottom:0;
+	transition:all 0.5s ease-in-out 100ms;
+	-webkit-transition: all 0.5s ease-in-out 100ms;
+	-moz-transition:all 0.5s ease-in-out 100ms;
+}
+section a:hover img {
+	bottom:-100px;
+}
+.app-label {
+	left:0 !important;
+	top: 110px;
+	background:rgba(0,0,0,.5);
+	padding:0 10px 10px 10px;
+	width:450px;
+	height:140px;
+	transition:all .5s ease-in-out 100ms;
+	-webkit-transform:all .5s ease-in-out 100ms;
+	-moz-transform:all .5s ease-in-out 100ms;
+}
+section a:hover .app-label {
+	top:0;
+}
+.app-label h4 {
+	width:360px;
+	line-height:40px;
+	overflow:hidden;
+	white-space:nowrap;
+	text-overflow:ellipsis;
+}
+.app-label h4 span {
+	position:absolute;
+	right: 10px;
+}
+.app-label p {
+	height: 100px;
+	overflow:hidden;
+}
+.myLocal {
+	font-size:12px;
+	margin-left:10px;
+	line-height:20px;
+}
+.myLocal b[class='icon-map-pin-fill'] {
+	margin-left:5px;
+	color: red;
+}
+.modal-header h3 {
+	text-align: center;
+}
+</style>
+<script src="js/jquery-1.8.2.js"></script>
+<script src="js/bootstrap.js"></script>
+<script src="js/bootmetro.js"></script>
+<script src="js/jquery.mousewheel.js"></script>
+<script src="js/jquery.scrollTo.js"></script>
+<script src="http://api.map.baidu.com/api?v=1.4"></script>
+<script>
+var wordLimit = function() {
+	$(".app-label p").each(function(index, element) {
+		$(this).css({
+			"height":"auto",
+			"overflow":"visible"
+		});
+		while($(this).height() > 100) {
+			$(this).html($(this).html().substring(0, $(this).html().length - 4) + "...");
+		}
+    });
+}
+$(document).ready(function(e) {
+	$(".metro").metro();
+	init();
+	wordLimit();
+	$("#loginBtn").click(function(e) {
+        $("#loginBtn").click(function(e) {
+	        $.ajax({
+		        cache:false,
+				url:"ajax/login.action",
+				type:"POST",
+				data:{"userEmail":$("#inputEmail").val(), "userPwd":$("#inputPassword").val()},
+				dataType:"json",
+				success: function(json){
+					if(json.tips == 1) {
+						$("#tips").html("");
+						$("#login button[class='close']").click();
+						$("#top-info h3").html(json.user.userName);
+						$("#top-info h4").html(json.user.userResidence);
+						if(json.user.userPhoto != null)
+							$("div.top-info-block:last").html("<img src='' width='46' height='46'/>");
+						$("#top-info a:first-child").attr("href","#");
+					}else
+						alert("增加库存失败!");
+						$(".modal-body")
+					},
+				error: function(){
+					alert("服务器未响应...");
+				}
+			});
+			return false;
+	    });
+    });
+	$("#registerBtn").click(function(e) {
+	    $("#login button[class='close']").click();
+	    	if($("a[href='#register']").length > 0)
+	    		$("a[href='#register']").click();
+	    	else {
+	    		$("<a href='#register' data-toggle='modal' class='hide'></a>").appendTo(document.body);
+				$("a[href='#register']").click();
+			}
+	});
+	$("#inputRePassword").blur(function(e) {
+        if($("#inputPassword").val() == $("#inputRePassword").val())
+			if($(this).parent("div").children("b").length > 0)
+				$(this).parent("div").remove("b");
+				$("#inputPassword").after("<b class='icon-checkmark'></b>");
+    });
+});
+var init = function() {
+	var ge = new BMap.Geolocation();
+	ge.getCurrentPosition(function(position) {
+		if(this.getStatus() == BMAP_STATUS_SUCCESS) {
+			var myGeo = new BMap.Geocoder();
+			myGeo.getLocation(position.point, function(result) {
+				if(result)
+					$("#myLocal").html(result.address);
+			});
+		}
+	});
+}
+</script>
+</head>
+
+<body>
+	<header id="nav-bar" class="container-fluid">
+    	<div class="row-fluid">
+        	<div class="span8">
+            	<div id="header-container">
+                	<a id="backbutton" class="win-backbutton" href="./index.html"></a>
+                    <h5>BootMenu</h5>
+                    <div class="dropdown">
+                    	<a class="header-dropdown dropdown-toggle accent-color" href="#" data-toggle="dropdown">开始
+                        	<b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                        	<li><a href="./index.html">Index</a></li>
+                            <li><a href="./index2.html">Index2</a></li>
+                            <li class="divider"></li>
+                            <li><a href="./index3.html">Index3</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="top-info" class="pull-right">
+            	<a class="pull-left" href="#login" data-toggle="modal">
+                	<div class="top-info-block">
+                    	<h3>游客</h3>
+                        <h4>登录</h4>
+                    </div>
+                    <div class="top-info-block">
+                    	<b class="icon-user"></b>
+                    </div>
+                </a>
+                <hr class="separator pull-left"/>
+                <a id="settings" class="pull-left" href="#">
+                	<b class="icon-settings"></b>
+                </a>
+            </div>
+        </div>
+    </header>
+    <div class="container-fluid">
+    	<div class="row-fluid">
+        	<div class="metro span12">
+            	<article class="metro-sections" style="width:1390px; left:55px;">
+                	<section id="section" class="metro-section tile-span-4">
+                    	<h2>附近餐馆<a class="myLocal" href="location.html">我的位置:<b class="icon-map-pin-fill"></b><span id="myLocal"><b class="icon-loading"></b>定位中...</span></a></h2>
+                        <a class="tile wide bg-color-blue" href="restinfo.html">
+                        	<img src="images/1.jpg"/>
+                        	<div class="app-label">
+                            	<h4>中森名菜<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b></span></h4>
+                                <p>传说中“全广州最大的日本料理店”，“一出电梯就见小桥流水青竹横生”。环境“舒适”、“幽雅”，包房“很有日式风格”。食物的种类“很多”，其实除了日本料理之外，“粥、粉、面、饭”应有尽有，味道都“不错”。价格就印证了“丰俭由人”这个词，10多元到上千元的菜肴“任君选择”，既适合“平民消费”，又适合“商务宴请”。</p>
+                            </div>
+                        </a>
+                        <a class="tile wide bg-color-blueDark" href="#">
+                        	<img src="images/2.jpg"/>
+                            <div class="app-label">
+                            	<h4>南园酒家<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-2"></b></span></h4>
+                                <p>“广州老字号”，就“挨”着晓风公园，“园林”风格颇为相似。环境除去碧绿青翠，还有“亭台楼阁”，“小桥流水”，处处“充满岭南特色”。出品“从不”令人失望，无论粤菜还是茶点味道都“几好”，深受各个年龄层的顾客“喜爱”。价格“贵点”，但“一家老小”就认这里。 P.S.可办婚宴。</p>
+                            </div>
+                        </a>
+                        <a class="tile wide bg-color-orange" href="#">
+                        	<img src="images/3.jpg"/>
+                            <div class="app-label">
+                            	<h4>唐苑酒家流花公园店<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-2"></b><b class="icon-star"></b></span></h4>
+                                <p>“广州高档食府之一”。粤菜做得“地道”，“色香味俱全”，“平民吃得起”的火山石烧翅“抵食夹大件”，“不可不试”；点心卖相“精致”，味道“好好”。环境也是“一流”，流花店依湖而建，“安静、舒适”，被称作“白宫”；中山大道店（即天河总店）装修得“豪华气派”，室外还有“精致”的后花园。酒足饭饱后，“清茶在手”，抬眼观赏“迷人”的景致，真可谓“人生一大美事”。 小贴士：茶市人气“超旺”，建议早点去。</p>
+                            </div>
+                        </a>
+                        <a class="tile wide bg-color-red" href="#">
+                        	<img src="images/3.jpg"/>
+                            <div class="app-label">
+                            	<h4>川国演义(广州天河店)<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-2"></b><b class="icon-star"></b></span></h4>
+                                <p>风评“不错”的川菜馆，出品“没话说”，“比较符合本地人口味”。水煮鱼“滑嫩细腻”，“香辣入味”；毛血旺吃口“瓷实”，辣度“适中”；夫妻肺片分量“不多”，吃得人“心念念”的。环境比一般川菜馆“上档次”多了，服务态度也“非常好”。价格“小贵”，适合重要的商务宴请。</p>
+                            </div>
+                        </a>
+                        <a class="more" href="#">更多</a>
+                    </section>
+                	<section id="section1" class="metro-section tile-span-4">
+                    	<h2>好评餐馆</h2>
+                        <a class="tile wide imagetext wideimage bg-color-blueDark" href="#">
+                        	<img src="images/1.jpg"/>
+                        	<div class="app-label">
+                            	<h4>中森名菜<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b></span></h4>
+                                <p>传说中“全广州最大的日本料理店”，“一出电梯就见小桥流水青竹横生”。环境“舒适”、“幽雅”，包房“很有日式风格”。食物的种类“很多”，其实除了日本料理之外，“粥、粉、面、饭”应有尽有，味道都“不错”。价格就印证了“丰俭由人”这个词，10多元到上千元的菜肴“任君选择”，既适合“平民消费”，又适合“商务宴请”。</p>
+                            </div>
+                        </a>
+                        <a class="tile wide imagetext wideimage bg-color-orange" href="#">
+                        	<img src="images/2.jpg"/>
+                            <div class="app-label">
+                            	<h4>南园酒家<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-2"></b></span></h4>
+                                <p>“广州老字号”，就“挨”着晓风公园，“园林”风格颇为相似。环境除去碧绿青翠，还有“亭台楼阁”，“小桥流水”，处处“充满岭南特色”。出品“从不”令人失望，无论粤菜还是茶点味道都“几好”，深受各个年龄层的顾客“喜爱”。价格“贵点”，但“一家老小”就认这里。 P.S.可办婚宴。</p>
+                            </div>
+                        </a>
+                        <a class="tile app wide bg-color-greenDark" href="#">
+                        	<img src="images/3.jpg"/>
+                            <div class="app-label">
+                            	<h4>唐苑酒家流花公园店<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-2"></b><b class="icon-star"></b></span></h4>
+                                <p>“广州高档食府之一”。粤菜做得“地道”，“色香味俱全”，“平民吃得起”的火山石烧翅“抵食夹大件”，“不可不试”；点心卖相“精致”，味道“好好”。环境也是“一流”，流花店依湖而建，“安静、舒适”，被称作“白宫”；中山大道店（即天河总店）装修得“豪华气派”，室外还有“精致”的后花园。酒足饭饱后，“清茶在手”，抬眼观赏“迷人”的景致，真可谓“人生一大美事”。 小贴士：茶市人气“超旺”，建议早点去。</p>
+                            </div>
+                        </a>
+                        <a class="tile app wide bg-color-purple" href="#">
+                        	<img src="images/3.jpg"/>
+                            <div class="app-label">
+                            	<h4>川国演义(广州天河店)<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-2"></b><b class="icon-star"></b></span></h4>
+                                <p>风评“不错”的川菜馆，出品“没话说”，“比较符合本地人口味”。水煮鱼“滑嫩细腻”，“香辣入味”；毛血旺吃口“瓷实”，辣度“适中”；夫妻肺片分量“不多”，吃得人“心念念”的。环境比一般川菜馆“上档次”多了，服务态度也“非常好”。价格“小贵”，适合重要的商务宴请。</p>
+                            </div>
+                        </a>
+                        <a class="more" href="#">更多</a>
+                    </section>
+                    <section id="section2" class="metro-section tile-span-4">
+                    	<h2>新增餐馆</h2>
+                        <a class="tile wide bg-color-blue" href="#">
+                        	<img src="images/1.jpg"/>
+                        	<div class="app-label">
+                            	<h4>中森名菜<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b></span></h4>
+                                <p>传说中“全广州最大的日本料理店”，“一出电梯就见小桥流水青竹横生”。环境“舒适”、“幽雅”，包房“很有日式风格”。食物的种类“很多”，其实除了日本料理之外，“粥、粉、面、饭”应有尽有，味道都“不错”。价格就印证了“丰俭由人”这个词，10多元到上千元的菜肴“任君选择”，既适合“平民消费”，又适合“商务宴请”。</p>
+                            </div>
+                        </a>
+                        <a class="tile wide bg-color-blueDark" href="#">
+                        	<img src="images/2.jpg"/>
+                            <div class="app-label">
+                            	<h4>南园酒家<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-2"></b></span></h4>
+                                <p>“广州老字号”，就“挨”着晓风公园，“园林”风格颇为相似。环境除去碧绿青翠，还有“亭台楼阁”，“小桥流水”，处处“充满岭南特色”。出品“从不”令人失望，无论粤菜还是茶点味道都“几好”，深受各个年龄层的顾客“喜爱”。价格“贵点”，但“一家老小”就认这里。 P.S.可办婚宴。</p>
+                            </div>
+                        </a>
+                        <a class="tile wide bg-color-orange" href="#">
+                        	<img src="images/3.jpg"/>
+                            <div class="app-label">
+                            	<h4>唐苑酒家流花公园店<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-2"></b><b class="icon-star"></b></span></h4>
+                                <p>“广州高档食府之一”。粤菜做得“地道”，“色香味俱全”，“平民吃得起”的火山石烧翅“抵食夹大件”，“不可不试”；点心卖相“精致”，味道“好好”。环境也是“一流”，流花店依湖而建，“安静、舒适”，被称作“白宫”；中山大道店（即天河总店）装修得“豪华气派”，室外还有“精致”的后花园。酒足饭饱后，“清茶在手”，抬眼观赏“迷人”的景致，真可谓“人生一大美事”。 小贴士：茶市人气“超旺”，建议早点去。</p>
+                            </div>
+                        </a>
+                        <a class="tile wide bg-color-red" href="#">
+                        	<img src="images/3.jpg"/>
+                            <div class="app-label">
+                            	<h4>川国演义(广州天河店)<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-2"></b><b class="icon-star"></b></span></h4>
+                                <p>风评“不错”的川菜馆，出品“没话说”，“比较符合本地人口味”。水煮鱼“滑嫩细腻”，“香辣入味”；毛血旺吃口“瓷实”，辣度“适中”；夫妻肺片分量“不多”，吃得人“心念念”的。环境比一般川菜馆“上档次”多了，服务态度也“非常好”。价格“小贵”，适合重要的商务宴请。</p>
+                            </div>
+                        </a>
+                        <a class="more" href="#">更多</a>
+                    </section>
+                    <section id="section3" class="metro-section tile-span-4">
+                    	<h2>好评菜色</h2>
+                        <a class="tile wide bg-color-blue" href="#">
+                        	<img src="images/1.jpg"/>
+                        	<div class="app-label">
+                            	<h4>中森名菜<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b></span></h4>
+                                <p>传说中“全广州最大的日本料理店”，“一出电梯就见小桥流水青竹横生”。环境“舒适”、“幽雅”，包房“很有日式风格”。食物的种类“很多”，其实除了日本料理之外，“粥、粉、面、饭”应有尽有，味道都“不错”。价格就印证了“丰俭由人”这个词，10多元到上千元的菜肴“任君选择”，既适合“平民消费”，又适合“商务宴请”。</p>
+                            </div>
+                        </a>
+                        <a class="tile wide bg-color-blueDark" href="#">
+                        	<img src="images/2.jpg"/>
+                            <div class="app-label">
+                            	<h4>南园酒家<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-2"></b></span></h4>
+                                <p>“广州老字号”，就“挨”着晓风公园，“园林”风格颇为相似。环境除去碧绿青翠，还有“亭台楼阁”，“小桥流水”，处处“充满岭南特色”。出品“从不”令人失望，无论粤菜还是茶点味道都“几好”，深受各个年龄层的顾客“喜爱”。价格“贵点”，但“一家老小”就认这里。 P.S.可办婚宴。</p>
+                            </div>
+                        </a>
+                        <a class="tile wide bg-color-orange" href="#">
+                        	<img src="images/3.jpg"/>
+                            <div class="app-label">
+                            	<h4>唐苑酒家流花公园店<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-2"></b><b class="icon-star"></b></span></h4>
+                                <p>“广州高档食府之一”。粤菜做得“地道”，“色香味俱全”，“平民吃得起”的火山石烧翅“抵食夹大件”，“不可不试”；点心卖相“精致”，味道“好好”。环境也是“一流”，流花店依湖而建，“安静、舒适”，被称作“白宫”；中山大道店（即天河总店）装修得“豪华气派”，室外还有“精致”的后花园。酒足饭饱后，“清茶在手”，抬眼观赏“迷人”的景致，真可谓“人生一大美事”。 小贴士：茶市人气“超旺”，建议早点去。</p>
+                            </div>
+                        </a>
+                        <a class="tile wide bg-color-red" href="#">
+                        	<img src="images/3.jpg"/>
+                            <div class="app-label">
+                            	<h4>川国演义(广州天河店)<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-2"></b><b class="icon-star"></b></span></h4>
+                                <p>风评“不错”的川菜馆，出品“没话说”，“比较符合本地人口味”。水煮鱼“滑嫩细腻”，“香辣入味”；毛血旺吃口“瓷实”，辣度“适中”；夫妻肺片分量“不多”，吃得人“心念念”的。环境比一般川菜馆“上档次”多了，服务态度也“非常好”。价格“小贵”，适合重要的商务宴请。</p>
+                            </div>
+                        </a>
+                        <a class="more" href="#">更多</a>
+                    </section>
+                    <section id="section4" class="metro-section tile-span-4">
+                    	<h2>新增菜色</h2>
+                        <a class="tile wide bg-color-blue" href="#">
+                        	<img src="images/1.jpg"/>
+                        	<div class="app-label">
+                            	<h4>中森名菜<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b></span></h4>
+                                <p>传说中“全广州最大的日本料理店”，“一出电梯就见小桥流水青竹横生”。环境“舒适”、“幽雅”，包房“很有日式风格”。食物的种类“很多”，其实除了日本料理之外，“粥、粉、面、饭”应有尽有，味道都“不错”。价格就印证了“丰俭由人”这个词，10多元到上千元的菜肴“任君选择”，既适合“平民消费”，又适合“商务宴请”。</p>
+                            </div>
+                        </a>
+                        <a class="tile wide bg-color-blueDark" href="#">
+                        	<img src="images/2.jpg"/>
+                            <div class="app-label">
+                            	<h4>南园酒家<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-2"></b></span></h4>
+                                <p>“广州老字号”，就“挨”着晓风公园，“园林”风格颇为相似。环境除去碧绿青翠，还有“亭台楼阁”，“小桥流水”，处处“充满岭南特色”。出品“从不”令人失望，无论粤菜还是茶点味道都“几好”，深受各个年龄层的顾客“喜爱”。价格“贵点”，但“一家老小”就认这里。 P.S.可办婚宴。</p>
+                            </div>
+                        </a>
+                        <a class="tile wide bg-color-orange" href="#">
+                        	<img src="images/3.jpg"/>
+                            <div class="app-label">
+                            	<h4>唐苑酒家流花公园店<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-2"></b><b class="icon-star"></b></span></h4>
+                                <p>“广州高档食府之一”。粤菜做得“地道”，“色香味俱全”，“平民吃得起”的火山石烧翅“抵食夹大件”，“不可不试”；点心卖相“精致”，味道“好好”。环境也是“一流”，流花店依湖而建，“安静、舒适”，被称作“白宫”；中山大道店（即天河总店）装修得“豪华气派”，室外还有“精致”的后花园。酒足饭饱后，“清茶在手”，抬眼观赏“迷人”的景致，真可谓“人生一大美事”。 小贴士：茶市人气“超旺”，建议早点去。</p>
+                            </div>
+                        </a>
+                        <a class="tile wide bg-color-red" href="#">
+                        	<img src="images/3.jpg"/>
+                            <div class="app-label">
+                            	<h4>川国演义(广州天河店)<span><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-3"></b><b class="icon-star-2"></b><b class="icon-star"></b></span></h4>
+                                <p>风评“不错”的川菜馆，出品“没话说”，“比较符合本地人口味”。水煮鱼“滑嫩细腻”，“香辣入味”；毛血旺吃口“瓷实”，辣度“适中”；夫妻肺片分量“不多”，吃得人“心念念”的。环境比一般川菜馆“上档次”多了，服务态度也“非常好”。价格“小贵”，适合重要的商务宴请。</p>
+                            </div>
+                        </a>
+                        <a class="more" href="#">更多</a>
+                    </section>
+                </article>
+            </div>
+        </div>
+    </div>
+    <div id="login" class="modal message hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+			<h3>登录</h3>
+		</div>
+		<div class="modal-body">
+			<form id="loginForm" class="form-horizontal">
+            	<div class="control-group">
+                	<label class="control-label" for="inputEmail" style="width: 35%;">邮箱</label>
+                	<div class="controls" style="width: 65%; float: left; margin-left: 0;">
+                		<input type="text" id="inputEmail" placeholder="Email" style="margin-left: 20px;">
+                	</div>
+              	</div>
+                <div class="control-group">
+                	<label class="control-label" for="inputPassword" style="width: 35%;">密码</label>
+                    <div class="controls" style="width: 65%; float: left; margin-left: 0;">
+                    	<input type="password" id="inputPassword" placeholder="Password" style="margin-left: 20px;">
+                    </div>
+                </div>
+            </form>
+		</div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal">关闭</button>
+			<button id="loginBtn" type="submit" form="loginForm" class="btn">登录</button>
+		</div>
+	</div> 
+</body>
+</html>
